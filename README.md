@@ -1,23 +1,60 @@
-# Go Server
+# token-metadata-cli
 
-## Stacks
-- Golang
-- Postgres
-- Docker
+A simple Rust CLI to create or update Metaplex Token Metadata on Solana.
 
-## Libraries
-- [pgx](https://github.com/jackc/pgx)
-- [gorilla/csrf](https://github.com/gorilla/csrf)
+## Build
 
-## References
-- [cor_wdv2](https://courses.calhoun.io/courses/cor_wdv2)
-- [lenslocked](https://github.com/calhounio/lenslocked)
-- [errors in Go](https://errorsingo.com/)
-- [Standard Package Layout](https://www.gobeyond.dev/standard-package-layout/)
-- [GopherCon 2018: Kat Zien - How Do You Structure Your Go Apps](https://www.youtube.com/watch?v=oL6JBUk6tj0)
-- [5 Useful Ways to Use Closures in Go ](https://www.calhoun.io/5-useful-ways-to-use-closures-in-go/)
-- [SQL for Beginners: Part 3 - Database Relationships](https://code.tutsplus.com/articles/sql-for-beginners-part-3-database-relationships--net-8561)
-- https://app.slack.com/client/T3GR3N17B/C3HDNP09Z/thread/C3HDNP09Z-1667605277.708849
-- [Go-Learning-Archive](https://github.com/ErdemOzgen/Go-Learning-Archive)
-- [インタフェースの実装パターン #golang](https://qiita.com/tenntenn/items/eac962a49c56b2b15ee8#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB)
-- [Goのinterfaceがわからない人へ](https://qiita.com/rtok/items/46eadbf7b0b7a1b0eb08)
+```bash
+cargo build --release
+```
+
+## Usage
+
+### Create metadata for an existing mint
+
+```bash
+# Minimal (uses default keypair + devnet)
+token-metadata-cli create \
+  --mint <MINT_ADDRESS> \
+  --name "My Token" \
+  --symbol "MTK"
+
+# With URI and custom keypair/RPC
+token-metadata-cli -k /path/to/keypair.json -u https://api.devnet.solana.com create \
+  --mint <MINT_ADDRESS> \
+  --name "My Token" \
+  --symbol "MTK" \
+  --uri "https://arweave.net/your-metadata.json" \
+  --seller-fee-basis-points 0 \
+  --mutable true
+```
+
+### Update existing metadata
+
+```bash
+# Update name only
+token-metadata-cli update \
+  --mint <MINT_ADDRESS> \
+  --name "New Name"
+
+# Update multiple fields
+token-metadata-cli update \
+  --mint <MINT_ADDRESS> \
+  --name "New Name" \
+  --symbol "NEW" \
+  --uri "https://arweave.net/new-metadata.json"
+```
+
+### Global options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-k, --keypair` | Path to keypair file | `~/.config/solana/id.json` |
+| `-u, --url` | Solana RPC URL | `https://api.devnet.solana.com` |
+
+## Notes
+
+- You must be the **mint authority** to create metadata
+- You must be the **update authority** to update metadata
+- The keypair file is the standard Solana CLI format (JSON array of bytes)
+- For mainnet, change the URL: `-u https://api.mainnet-beta.solana.com`
